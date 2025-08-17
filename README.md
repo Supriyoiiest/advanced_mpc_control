@@ -1,268 +1,480 @@
-Advanced MPC Control
-A cross-platform Python library for modern Model Predictive Control (MPC) with Reinforcement Learning (RL) and Least-Squares (LSQ) modeling. It implements:
+# Advanced MPC Control
 
-RL-NMPC: Reinforcement Learning–assisted Nonlinear MPC
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS%20%7C%20Colab-lightgrey)](https://github.com/advanced-mpc-control)
 
-RL+CMPC: RL-informed Constrained MPC with critic shaping
+A comprehensive Python library for advanced Model Predictive Control (MPC) with Reinforcement Learning (RL) integration and Least-Squares (LSQ) modeling. Implements state-of-the-art control algorithms with neural network enhancement and cross-platform compatibility.
 
-AMPC: Adaptive MPC with online LSQ system identification
+## 🚀 Features
 
-Afty-MPC: Attention-layer–enhanced MPC (Afty = Attention layer)
+### Control Algorithms
+- **RL-NMPC**: Reinforcement Learning-assisted Nonlinear Model Predictive Control
+- **RL+CMPC**: RL-informed Constrained MPC with critic-driven robustness
+- **AMPC**: Adaptive MPC with online recursive least-squares updates
+- **Attention-MPC**: Attention-layer-enhanced MPC (Afty-layer augmentation)
 
-Works on Windows, Linux, macOS, and Google Colab. Neural components (PyTorch) are optional.
+### Core Capabilities
+- 🔧 **Unified API**: Single interface for all controllers via `BaseMPC`
+- 📊 **LSQ Modeling**: Linear, polynomial, ridge/lasso, and neural hybrid models
+- 🧠 **Neural Networks**: MLP, RNN, Attention, and Actor-Critic architectures
+- 🎮 **MuJoCo Integration**: CartPole, HalfCheetah, and custom environment support
+- 📈 **Visualization**: Trajectory plotting, training curves, and video generation
+- 🎥 **Video Export**: MP4 and GIF rendering of simulation episodes
+- 📚 **Documentation**: Complete LaTeX manual with mathematical derivations
+- ✅ **Cross-Platform**: Windows, Linux, macOS, and Google Colab support
 
-Features
-Unified BaseMPC interface for all controllers
+## 📦 Installation
 
-LSQ modeling: linear, polynomial, ridge/lasso, and neural hybrids
+### Quick Install
+```bash
+pip install -e .
+```
 
-Neural networks for dynamics, cost shaping, policy/value (MLP/RNN/Attention)
+### With Optional Dependencies
+```bash
+pip install torch gymnasium[mujoco] mujoco moviepy matplotlib seaborn
+pip install -e .
+```
 
-MuJoCo + Gymnasium simulation wrappers (CartPole, HalfCheetah)
+### Google Colab Setup
+```python
+# Run this in a Colab cell
+!python -m advanced_mpc_control.examples.colab_setup
+```
 
-Plotting utilities: trajectories, inputs, training curves
+### Prerequisites
+- Python 3.9-3.12
+- NumPy, SciPy (required)
+- PyTorch (optional, for neural networks)
+- MuJoCo + Gymnasium (optional, for simulation)
 
-Video utilities: MP4 and GIF rendering of episodes
+## 🏗️ Architecture
 
-LaTeX documentation with derivations, diagrams, and API reference
-
-Clean modular package, tested across platforms
-
-Directory Structure
-text
+```
 advanced_mpc_control/
-├── core/
-│   ├── base_mpc.py             # Base MPC implementation (SciPy SLSQP)
-│   ├── lsq_modeling.py         # LSQ, nonlinear LSQ, system-ID, Neural-LSQ
-│   └── neural_networks.py      # MLP, RNN, Attention, Actor-Critic, trainer
-├── controllers/
-│   ├── rl_nmpc.py              # RL-assisted NMPC
-│   ├── rl_cmpc.py              # RL + constrained MPC (critic shaping)
-│   ├── ampc.py                 # Adaptive MPC (online LSQ updates)
-│   └── attention_mpc.py        # Attention-augmented MPC (Afty-layer)
-├── simulation/
-│   ├── mujoco_envs.py          # Generic MuJoCo wrapper
+├── 🔧 core/                    # Core building blocks
+│   ├── base_mpc.py            # Generic MPC solver with SciPy SLSQP
+│   ├── lsq_modeling.py        # LSQ variants + Neural-LSQ
+│   └── neural_networks.py     # PyTorch networks + training utilities
+├── 🎯 controllers/            # Ready-to-use MPC controllers
+│   ├── rl_nmpc.py            # RL-assisted NMPC
+│   ├── rl_cmpc.py            # RL + constrained MPC
+│   ├── ampc.py               # Adaptive MPC
+│   └── attention_mpc.py      # Attention-enhanced MPC
+├── 🎮 simulation/            # MuJoCo environment wrappers
+│   ├── mujoco_envs.py
 │   ├── cartpole_env.py
 │   └── halfcheetah_env.py
-├── utils/
-│   ├── plotting.py             # Trajectories, inputs, training curves
-│   ├── visualization.py
-│   └── video_utils.py          # MP4 / GIF rendering
-├── examples/
-│   ├── basic_usage.py
-│   ├── simulation_demo.py
-│   └── colab_setup.py
-├── tests/
-└── docs/
-    └── advanced_mpc_control.tex
-Installation
-Prerequisites:
+├── 📊 utils/                 # Plotting and video utilities
+├── 🧪 tests/                 # Unit tests and benchmarks
+├── 📚 examples/              # Usage examples and demos
+└── 📖 docs/                  # LaTeX documentation
+```
 
-Python 3.9–3.12
+## 🎯 Quick Start
 
-NumPy, SciPy
-
-Optional: PyTorch (CPU/GPU)
-
-Gymnasium + MuJoCo for simulations
-
-Install editable:
-
-bash
-pip install -e .
-Or minimal (without MuJoCo):
-
-bash
-pip install -e .[minimal]
-Recommended extras:
-
-bash
-pip install torch gymnasium[mujoco] mujoco moviepy matplotlib
-On Google Colab:
-
-Run examples/colab_setup.py to install MuJoCo, Gymnasium, and set up rendering.
-
-Quick Start
-Basic MPC loop on CartPole:
-
-python
+### Basic Usage
+```python
 from advanced_mpc_control import CartPoleEnv, RLNMPC, create_network
 
+# Create environment
 env = CartPoleEnv()
-state_dim = env.observation_space.shape[0]
-action_dim = env.action_space.shape
+state_dim = env.observation_space.shape[0]  # 4
+action_dim = env.action_space.shape[0]      # 1
 
+# Initialize RL-NMPC controller
 mpc = RLNMPC(
     prediction_horizon=25,
-    control_horizon=10,
+    control_horizon=10, 
     state_dim=state_dim,
     control_dim=action_dim,
+    dt=0.05,
     actor_critic=create_network(
-        'actor_critic', state_dim, action_dim,
-        action_bound=float(env.action_space.high)
-    ),
+        'actor_critic', 
+        state_dim, 
+        action_dim,
+        action_bound=float(env.action_space.high[0])
+    )
 )
 
-state, _ = env.reset(seed=0)
-for t in range(500):
+# Control loop
+state, _ = env.reset(seed=42)
+for step in range(500):
+    # MPC computes optimal action
     action = mpc.control_step(state)
+    
+    # Apply action to environment  
     state, reward, terminated, truncated, info = env.step(action)
+    
     if terminated or truncated:
         break
 
+# Get performance metrics
 metrics = mpc.get_performance_metrics()
-print(metrics)
-Controllers
-All controllers extend BaseMPC and share:
+print(f"Mean cost: {metrics['mean_cost']:.3f}")
+print(f"Control effort: {metrics['control_effort']:.3f}")
+```
 
-python
-u = controller.control_step(x0, x_ref=None, u_ref=None)
-metrics = controller.get_performance_metrics()
-RL-NMPC (controllers/rl_nmpc.py)
-
-Uses an actor-critic to warm start and shape NMPC cost
-
-Neural dynamics or cost approximation optional
-
-RL+CMPC (controllers/rl_cmpc.py)
-
-Constrained MPC with critic-based safety/robustness shaping
-
-Enforces input/state bounds via SLSQP bounds and constraints
-
-AMPC (controllers/ampc.py)
-
-Online recursive LSQ to adapt A, B (or nonlinear basis) each step
-
-Robust to slow drifts and mild unmodeled dynamics
-
-Afty-MPC (controllers/attention_mpc.py)
-
-Adds attention-based sequence penalty to the cost functional
-
-Encourages trajectory-level structure and smoothness
-
-Modeling: LSQ and Neural-LSQ
-Use core/lsq_modeling.py:
-
-LinearLSQModel: standard least-squares (+ Ridge/Lasso)
-
-NonlinearLSQModel: polynomial + interaction features
-
-SystemIdentificationLSQ: fit A, B (+ bias) from rollouts
-
-NeuralLSQModel: PyTorch MLP with LSQ pretraining and gradient descent
-
-Example (system ID):
-
-python
-from advanced_mpc_control import LSQModel
+### System Identification with LSQ
+```python
 from advanced_mpc_control.core.lsq_modeling import SystemIdentificationLSQ
+import numpy as np
 
+# Generate or load trajectory data
+states = np.random.randn(1000, 4)        # State trajectory
+inputs = np.random.randn(1000, 1)        # Input trajectory  
+next_states = np.random.randn(1000, 4)   # Next state trajectory
+
+# Fit linear system: x[k+1] = A*x[k] + B*u[k] + bias
 sysid = SystemIdentificationLSQ(state_dim=4, input_dim=1, model_type='linear')
-info = sysid.fit(states, inputs, next_states)
-x_rollout = sysid.simulate(initial_state, input_seq)
-Simulation
-simulation/ exposes Gymnasium-compatible envs:
+training_info = sysid.fit(states, inputs, next_states)
 
-python
-from advanced_mpc_control import CartPoleEnv, HalfCheetahEnv
+print(f"Training MSE: {training_info['training_mse']:.6f}")
+print(f"System stability (spectral radius): {training_info['spectral_radius']:.3f}")
 
-env = CartPoleEnv()        # fast CPU classic control
-env = HalfCheetahEnv()     # MuJoCo locomotion; requires mujoco installed
-Recording:
+# Use identified system for prediction
+predicted_states = sysid.predict_step(states, inputs)
+simulation_trajectory = sysid.simulate(initial_state=states[0], 
+                                     input_sequence=inputs[:100])
+```
 
-python
+### Neural Network Training
+```python
+from advanced_mpc_control import NeuralLSQModel
+import torch
+
+# Create hybrid neural-LSQ model
+model = NeuralLSQModel(
+    input_dim=5, 
+    output_dim=1,
+    hidden_dims=[64, 32],
+    use_lsq_init=True  # Initialize with LSQ solution
+)
+
+# Generate training data
+X_train = np.random.randn(1000, 5)
+y_train = np.random.randn(1000, 1)
+
+# Train with both LSQ initialization and gradient descent
+training_info = model.fit(
+    X_train, y_train,
+    epochs=500,
+    learning_rate=1e-3,
+    batch_size=32,
+    validation_split=0.2
+)
+
+# Make predictions
+X_test = np.random.randn(100, 5)
+predictions = model.predict(X_test)
+```
+
+## 🎮 Simulation Environments
+
+### CartPole (Classic Control)
+```python
+from advanced_mpc_control import CartPoleEnv
+
+env = CartPoleEnv()
+# 4-dimensional state: [position, velocity, angle, angular_velocity]
+# 1-dimensional action: [force]
+```
+
+### HalfCheetah (MuJoCo Locomotion)
+```python
+from advanced_mpc_control import HalfCheetahEnv
+
+env = HalfCheetahEnv(max_steps=1000)
+# 17-dimensional state space
+# 6-dimensional action space (joint torques)
+```
+
+### Custom Environment
+```python
+from advanced_mpc_control.simulation import MuJoCoEnvironment
+
+env = MuJoCoEnvironment(
+    xml_path="path/to/custom.xml",
+    max_steps=500,
+    render_mode="rgb_array"
+)
+```
+
+## 📊 Visualization and Analysis
+
+### Trajectory Plotting
+```python
+from advanced_mpc_control import plot_trajectory, plot_control_inputs
+
+# Plot state trajectories
+states = np.array(mpc.state_history)
+plot_trajectory(states, labels=["x", "ẋ", "θ", "θ̇"], 
+               title="CartPole State Evolution")
+
+# Plot control inputs
+controls = np.array(mpc.control_history)  
+plot_control_inputs(controls, labels=["Force (N)"],
+                   title="Control Effort")
+```
+
+### Video Generation
+```python
 from advanced_mpc_control import create_gif, create_video
-# after running an episode with env.frame_buffer filled:
-create_gif("episode.gif", frames=env.frame_buffer, fps=30)
-create_video("episode.mp4", frames=env.frame_buffer, fps=30)
-Plotting
-python
-from advanced_mpc_control import plot_trajectory, plot_control_inputs, TrainingPlotter
 
-plot_trajectory(states, labels=["x", "xdot", "theta", "thetadot"])
-plot_control_inputs(actions, labels=["force"])
-TrainingPlotter().plot_losses(train_losses, val_losses)
-Examples
-examples/basic_usage.py: LSQ fit + simple MPC loop
+# Record environment frames during simulation
+env = CartPoleEnv(render_mode="rgb_array")
+frames = []
 
-examples/simulation_demo.py: Full controller running in CartPole/HalfCheetah
+for step in range(200):
+    action = mpc.control_step(state)
+    state, _, done, _, _ = env.step(action)
+    frames.append(env.render())
+    if done:
+        break
 
-examples/colab_setup.py: Installs MuJoCo + Gymnasium + sets up codecs on Colab
+# Generate video outputs
+create_gif("cartpole_episode.gif", frames, fps=30)
+create_video("cartpole_episode.mp4", frames, fps=30)
+```
 
-Run:
+### Training Analysis
+```python
+from advanced_mpc_control.utils import TrainingPlotter
 
-bash
-python -m advanced_mpc_control.examples.simulation_demo
-LaTeX Documentation
-A full derivation and API reference is provided at docs/advanced_mpc_control.tex:
+plotter = TrainingPlotter()
+plotter.plot_losses(train_losses, val_losses, save_path="training_curves.png")
+plotter.plot_metrics(metrics_dict, save_path="performance_metrics.png")
+```
 
-NMPC objective and constraints
+## 🎯 Advanced Usage
 
-RL integration (policy warm-start, critic penalty)
+### Custom Controller Implementation
+```python
+from advanced_mpc_control.core import BaseMPC
+import numpy as np
 
-AMPC parameter updates via least squares
+class CustomMPC(BaseMPC):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        # Custom initialization
+        
+    def predict_trajectory(self, x0, u_sequence):
+        # Implement custom dynamics prediction
+        x_traj = np.zeros((self.prediction_horizon + 1, self.state_dim))
+        x_traj[0] = x0
+        
+        for k in range(self.prediction_horizon):
+            u_k = u_sequence[min(k, len(u_sequence) - 1)]
+            # Custom dynamics: x[k+1] = f(x[k], u[k])  
+            x_traj[k + 1] = self.custom_dynamics(x_traj[k], u_k)
+            
+        return x_traj
+    
+    def custom_dynamics(self, x, u):
+        # Implement your system dynamics
+        return x  # Placeholder
+```
 
-Attention augmentation term and implementation details
+### Multi-Environment Benchmarking
+```python
+from advanced_mpc_control import RLNMPC, AMPC, AttentionMPC
 
-UML diagrams of module and class relationships
+controllers = {
+    'RL-NMPC': RLNMPC(state_dim=4, control_dim=1, prediction_horizon=20),
+    'AMPC': AMPC(state_dim=4, control_dim=1, prediction_horizon=20), 
+    'Attention-MPC': AttentionMPC(state_dim=4, control_dim=1, prediction_horizon=20)
+}
 
-Compile:
+environments = [CartPoleEnv(), HalfCheetahEnv()]
 
-bash
-cd docs
+results = {}
+for ctrl_name, controller in controllers.items():
+    for env in environments:
+        # Run benchmark
+        metrics = run_benchmark(controller, env, episodes=10)
+        results[f"{ctrl_name}_{env.__class__.__name__}"] = metrics
+
+print_benchmark_results(results)
+```
+
+## 📚 Examples and Demos
+
+### Run Built-in Examples
+```bash
+# Basic usage demonstration
+python -m advanced_mpc_control.examples.basic_usage
+
+# Full simulation demo with all controllers
+python -m advanced_mpc_control.examples.simulation_demo  
+
+# Google Colab setup script
+python -m advanced_mpc_control.examples.colab_setup
+```
+
+### Example Scripts Include:
+- `basic_usage.py`: LSQ fitting + simple MPC loop
+- `simulation_demo.py`: All controllers on CartPole and HalfCheetah
+- `neural_training.py`: Neural network training workflows
+- `video_generation.py`: Create MP4/GIF outputs
+- `benchmarking.py`: Performance comparison across controllers
+
+## 🧪 Testing
+
+Run the test suite:
+```bash
+# Quick tests
+pytest tests/ -v
+
+# With coverage
+pytest tests/ --cov=advanced_mpc_control --cov-report=html
+
+# Specific test categories
+pytest tests/test_controllers.py -v  # Controller tests
+pytest tests/test_lsq.py -v          # LSQ model tests
+pytest tests/test_simulation.py -v   # Environment tests
+```
+
+## 📖 Documentation
+
+### LaTeX Manual
+Comprehensive mathematical documentation with derivations:
+
+```bash
+cd docs/
 latexmk -pdf advanced_mpc_control.tex
-Configuration
-Top-level config:
+```
 
-python
+**Contents:**
+- Mathematical formulation of each controller
+- LSQ theory and numerical stability analysis  
+- Neural network architectures and training
+- Attention mechanism derivation
+- Complete API reference
+- UML diagrams and class relationships
+
+### API Reference
+Generate HTML docs:
+```bash
+cd docs/
+make html  # Requires sphinx
+```
+
+## ⚙️ Configuration
+
+### Global Configuration
+```python
 from advanced_mpc_control import get_config, set_config
 
-cfg = get_config()
-set_config(device='cuda', default_dtype='float32')
-Graceful degradation:
+# View current config
+config = get_config()
+print(config)
 
-If PyTorch is missing, neural features are disabled with warnings.
+# Update settings
+set_config(
+    device='cuda' if torch.cuda.is_available() else 'cpu',
+    default_dtype='float32',
+    torch_available=True
+)
+```
 
-If MuJoCo/Gymnasium is missing, simulation-dependent demos are skipped.
+### Controller-Specific Options
+```python
+mpc = RLNMPC(
+    # MPC parameters
+    prediction_horizon=30,
+    control_horizon=10,
+    dt=0.05,
+    
+    # Cost function weights
+    Q=np.diag([10, 1, 10, 1]),  # State weights
+    R=np.array([[0.1]]),        # Control weights  
+    P=np.diag([10, 1, 10, 1]),  # Terminal weights
+    
+    # Constraints
+    u_min=np.array([-10]),
+    u_max=np.array([10]),
+    x_min=np.array([-5, -10, -1, -10]),
+    x_max=np.array([5, 10, 1, 10]),
+    
+    # Solver options
+    solver_options={
+        'method': 'SLSQP',
+        'options': {'maxiter': 200, 'ftol': 1e-9}
+    }
+)
+```
 
-Testing
-Run unit tests:
+## 🤝 Contributing
 
-bash
-pytest -q
-Covers:
+We welcome contributions! Please follow these guidelines:
 
-LSQ fitting accuracy and stability
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Write tests** for new functionality
+4. **Run** tests and linting (`pytest && ruff check`)
+5. **Commit** changes (`git commit -am 'Add amazing feature'`)
+6. **Push** to branch (`git push origin feature/amazing-feature`) 
+7. **Open** a Pull Request
 
-Base MPC optimization step and constraints
+### Development Setup
+```bash
+git clone https://github.com/Supriyoiiest/advanced-mpc-control.git
+cd advanced-mpc-control
+pip install -e .[dev]
+pre-commit install
+```
 
-Controller smoke tests
+### Code Style
+- Follow **PEP 8** 
+- Use **type hints** for all public APIs
+- Add **docstrings** with examples
+- Run **ruff** for linting
+- Achieve **>90% test coverage**
 
-Plotting and video utils
+## 🗺️ Roadmap
 
-Roadmap
-CasADi/QP backends (optional) for faster constrained solves
+### Near Term (v1.1)
+- [ ] CasADi backend option for faster QP solving
+- [ ] Robust/tube MPC variants
+- [ ] Extended Kalman Filter integration
+- [ ] MATLAB/Simulink interface
 
-Tube MPC and distributionally robust shaping
+### Medium Term (v1.2)  
+- [ ] Distributed MPC for multi-agent systems
+- [ ] Stochastic MPC with uncertainty quantification
+- [ ] Real-time performance profiling and optimization
+- [ ] Industrial control examples (chemical plants, robotics)
 
-Multi-environment benchmark harness and leaderboards
+### Long Term (v2.0)
+- [ ] GPU-accelerated batch MPC for RL training
+- [ ] Differentiable MPC layers for end-to-end learning
+- [ ] Integration with modern RL libraries (Stable Baselines3, RLLib)
+- [ ] Cloud deployment utilities and APIs
 
-TorchScript export for controllers
+## 📄 License
 
-Contributing
-Fork, create a feature branch, add tests, open a PR
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-Follow PEP8; run ruff and pytest before submitting
+## 📮 Citation
 
-Add docstrings and examples for any public API changes
+If you use this library in your research, please cite:
 
-License
-MIT License. See LICENSE.
+```bibtex
+@software{advanced_mpc_control,
+  title={Advanced MPC Control: A Python Library for RL-Enhanced Model Predictive Control},
+  author={Advanced MPC Control Development Team},
+  year={2025},
+  url={https://github.com/Supriyoiiest/advanced_mpc_control},
+  version={0.0.1e}
+}
+```
 
-Citation
-If this library is useful in research, consider citing the project (BibTeX template to be added).
+## 🆘 Support
 
-Contact
-Issues and feature requests via the repository issue tracker.
+- **Issues**: [GitHub Issues](https://github.com/Supriyoiiest/advanced-mpc-control/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/Supriyoiiest/advanced-mpc-control/discussions)  
+- **Documentation**: [Online Docs](https://advanced-mpc-control.readthedocs.io)
+
+
+*Star ⭐ this repo if you find it helpful!*
